@@ -1,0 +1,65 @@
+buildscript {
+    ext {
+        kotlin_version = '1.3.41'
+        spring_boot_version = '1.5.8.RELEASE'
+        ebean_version = '11.41.1'
+    }
+    repositories {
+        maven {
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
+        }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
+        classpath "io.ebean:ebean-gradle-plugin:11.10.1"
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'kotlin-kapt' /*引入kapt */
+apply plugin: 'io.ebean'
+
+jar {
+    baseName = 'gs-rest-service'
+    version = '0.1.0'
+}
+
+repositories {
+    maven {
+        url "http://maven.aliyun.com/nexus/content/groups/public/"
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+dependencies {
+    /*这里在继承ebean的时候出现很多包找不到的问题，到配置的maven中央看看有没有包*/
+    kapt "io.ebean:kotlin-querybean-generator:$ebean_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // Required for Kotlin integration
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "io.ebean:ebean:$ebean_version"
+    compile "io.ebean:ebean-querybean:$ebean_version"
+    compile "io.ebean:ebean-spring-txn:11.10.4"
+    compile 'mysql:mysql-connector-java:8.0.17'
+    compile 'org.springframework.boot:spring-boot-starter-jdbc'
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+ebean {
+    debugLevel = 0
+}
+sourceSets {
+    main.kotlin.srcDirs += [file("$buildDir/generated/source/kaptKotlin/main")]
+}
